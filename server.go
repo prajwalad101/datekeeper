@@ -4,13 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Prajwalad101/datekeeper/middleware"
 	"github.com/Prajwalad101/datekeeper/pkg/datastore"
 	"github.com/Prajwalad101/datekeeper/pkg/db"
-	"github.com/Prajwalad101/datekeeper/pkg/domain/event"
-	"github.com/Prajwalad101/datekeeper/pkg/domain/user"
+	"github.com/Prajwalad101/datekeeper/route"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/justinas/alice"
 )
 
 /* type User struct {
@@ -61,19 +58,10 @@ func init() {
 }
 
 func main() {
-	mux := http.NewServeMux()
-
-	createEventHandler := http.HandlerFunc(event.CreateEvent)
-
-	mux.HandleFunc("/users", user.ListUser)
-	mux.HandleFunc("/user", user.GetUser)
-
-	// create a reusable middleware chain
-	stdChain := alice.New(middleware.EnforceJSONHandler)
-
-	mux.Handle("/event", stdChain.Then(createEventHandler))
+	datastore.Mux = http.NewServeMux()
+	route.InitChain()
 
 	log.Print("Listening on :8080")
-	httpErr := http.ListenAndServe(":8080", mux)
+	httpErr := http.ListenAndServe(":8080", datastore.Mux)
 	log.Fatal(httpErr)
 }
