@@ -1,16 +1,33 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 )
 
-func Auth(next http.Handler) http.Handler {
+func AuthMidddleware(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		authHeader := strings.Split(r.Header.Get("Authorization"), " ")
+		authHeader := r.Header.Get("Authorization")
 
-		fmt.Println("AuthHeader", authHeader)
+		if authHeader == "" {
+			http.Error(w, http.StatusText(http.StatusUnauthorized),
+				http.StatusUnauthorized)
+			return
+		}
+
+		bearer := "Bearer "
+
+		if len(authHeader) <= len(bearer) {
+			http.Error(w, http.StatusText(http.StatusUnauthorized),
+				http.StatusUnauthorized)
+			return
+		}
+
+		token := authHeader[len(bearer):]
+		if token == "" {
+			http.Error(w, http.StatusText(http.StatusUnauthorized),
+				http.StatusUnauthorized)
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	}
