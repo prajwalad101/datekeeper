@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/prajwalad101/datekeeper/pkg/datastore"
 	"github.com/prajwalad101/datekeeper/pkg/db"
 	"github.com/prajwalad101/datekeeper/pkg/handler"
+	"github.com/robfig/cron"
 )
 
 // Load Environment variables
@@ -26,11 +28,16 @@ func init() {
 }
 
 func main() {
+	fmt.Println("Running Schedule")
+	c := cron.New()
 	mux := http.NewServeMux()
+	c.Start()
 
 	mux.HandleFunc("/events/list", handler.ListEvents)
 	mux.HandleFunc("/events/show", handler.GetEvent)
 	mux.HandleFunc("/events/create", handler.CreateEvent)
+
+	handler.Schedule()
 
 	log.Print("Listening on :3000")
 	http.ListenAndServe(":3000", mux)
