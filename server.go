@@ -9,6 +9,7 @@ import (
 	"github.com/prajwalad101/datekeeper/pkg/datastore"
 	"github.com/prajwalad101/datekeeper/pkg/db"
 	"github.com/prajwalad101/datekeeper/pkg/handler"
+	"github.com/prajwalad101/datekeeper/pkg/service"
 	"github.com/prajwalad101/datekeeper/pkg/utils"
 )
 
@@ -33,10 +34,9 @@ func main() {
 	mux.HandleFunc("/events/show", handler.GetEvent)
 	mux.HandleFunc("/events/create", handler.CreateEvent)
 
-	handler.Schedule()
+	service.Schedule()
 
 	env := utils.GetEnv()
-
 	log.Print("Listening on ", env.Port)
 	http.ListenAndServe(env.Port, mux)
 }

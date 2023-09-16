@@ -110,7 +110,7 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := datastore.DBConnection.Exec(
-		"INSERT INTO events VALUES(DEFAULT, $1, $2, $3)",
+		"INSERT INTO events (id, name, note, date) VALUES (DEFAULT, $1, $2, $3)",
 		e.Name,
 		e.Note,
 		e.Date,
