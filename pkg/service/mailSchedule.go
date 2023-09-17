@@ -3,9 +3,11 @@ package service
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/prajwalad101/datekeeper/pkg/datastore"
 	"github.com/prajwalad101/datekeeper/pkg/handler"
+	"github.com/prajwalad101/datekeeper/pkg/utils"
 	"github.com/robfig/cron"
 )
 
@@ -19,10 +21,12 @@ func Schedule() {
 	c := cron.New()
 
 	// at 7 am every day
-	err := c.AddFunc("0 20 11 * * *", func() {
+	err := c.AddFunc("0 45 18 * * *", func() {
 		log.Println("----------Running daily event schedule----------")
-		EventNotify(week)
-		EventNotify(day)
+		err := EventNotify(week)
+		if err != nil {
+			log.Println(err.Error())
+		}
 	})
 	if err != nil {
 		log.Println(err.Error())
@@ -37,7 +41,7 @@ func Schedule() {
 // The interval should be a valid postgres interval
 func EventNotify(interval string) error {
 	rows, err := datastore.DBConnection.Query(
-		"Select * FROM EVENTS WHERE date BETWEEN CURRENT_DATE and CURRENT_DATE + INTERVAL '$1'",
+		"Select * FROM EVENTS WHERE date BETWEEN CURRENT_DATE and (CURRENT_DATE + $1::INTERVAL)",
 		interval,
 	)
 	if err != nil {
@@ -45,7 +49,7 @@ func EventNotify(interval string) error {
 	}
 	defer rows.Close()
 
-	events := make([]*handler.Event, 10)
+	events := make([]*handler.Event, 0)
 
 	for rows.Next() {
 		event := new(handler.Event)
@@ -60,13 +64,23 @@ func EventNotify(interval string) error {
 		return err
 	}
 
-	fmt.Println("Events", events)
-
 	for _, event := range events {
+		layout := "2006-01-02T15:04:05Z"
+		parsedTime, err := time.Parse(layout, event.Date)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(parsedTime)
+		date := parsedTime.Format("January 02")
+		fmt.Println(date)
+
+		subject := fmt.Sprintf("Notification for %v", date)
+		content := fmt.Sprintf("You have an event for %v. Note: %s", date, event.Note)
+
 		payload := EmailPayload{
-			Sender:    "prajwalad101@gmail.com",
-			Subject:   event.Name,
-			Body:      event.Note,
+			Sender:    utils.GetEnv().MailSender,
+			Subject:   subject,
+			Body:      content,
 			Recipient: "prajwalad101@gmail.com",
 		}
 		SendMail(payload)

@@ -11,6 +11,7 @@ type Env struct {
 	DBPort        string
 	MailgunDomain string
 	MailgunKey    string
+	MailSender    string
 }
 
 func GetEnv() Env {
@@ -23,6 +24,7 @@ func GetEnv() Env {
 		DBPort:        os.Getenv("DB_PORT"),
 		MailgunDomain: os.Getenv("MAILGUN_DOMAIN"),
 		MailgunKey:    os.Getenv("MAILGUN_KEY"),
+		MailSender:    os.Getenv("MAIL_SENDER"),
 	}
 	return env
 }

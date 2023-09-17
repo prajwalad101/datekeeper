@@ -28,10 +28,10 @@ func SendMail(payload EmailPayload) {
 	defer cancel()
 
 	// send a message with 10 second timeout
-	resp, id, err := mg.Send(ctx, message)
+	resp, _, err := mg.Send(ctx, message)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
-	fmt.Printf("ID: %s Resp: %s\n", id, resp)
+	fmt.Println(resp)
 }
