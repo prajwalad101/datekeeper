@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -101,11 +102,11 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if e.Name == "" || e.Date == "" {
-		errorResponse := utils.ErrorResponse{
+		resp := utils.JSONResponse{
 			Status:  http.StatusBadRequest,
 			Message: "Please provide required fields (name, note, date)",
 		}
-		utils.SendErrorResponse(w, errorResponse)
+		utils.SendJSONResponse(w, resp)
 		return
 	}
 
@@ -128,6 +129,92 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "Event %s created successfully (%d row affected)\n", e.Name, rowsAffected)
+}
+
+func UpdateEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PATCH" {
+		http.Error(w, http.StatusText(405), 405)
+		return
+	}
+	id := r.FormValue("id")
+	if id == "" {
+		utils.SendJSONResponse(
+			w,
+			utils.JSONResponse{
+				Status:  http.StatusBadRequest,
+				Message: "Please provide id in the params",
+			},
+		)
+		return
+	}
+
+	var e Event
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
+	err := decoder.Decode(&e)
+	switch {
+	case err == io.EOF:
+		utils.SendJSONResponse(
+			w,
+			utils.JSONResponse{Status: http.StatusBadRequest, Message: "Please provide a body"},
+		)
+		return
+	case err != nil:
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	_, err = datastore.DBConnection.Exec(
+		"UPDATE events SET name=$2, note=$3, date=$4 WHERE id=$1",
+		id,
+		e.Name,
+		e.Note,
+		e.Date,
+	)
+	if err != nil {
+		log.Printf("Error %v", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	utils.SendJSONResponse(
+		w,
+		utils.JSONResponse{Status: 200, Message: "Successfully updated event"},
+	)
+}
+
+func DeleteEvent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "DELETE" {
+		http.Error(w, http.StatusText(405), 405)
+		return
+	}
+
+	id := r.FormValue("id")
+	if id == "" {
+		utils.SendJSONResponse(
+			w,
+			utils.JSONResponse{
+				Status:  http.StatusBadRequest,
+				Message: "Please provide id in the params",
+			},
+		)
+		return
+	}
+
+	_, err := datastore.DBConnection.Exec(
+		"DELETE from events WHERE id=$1",
+		id,
+	)
+	if err != nil {
+		log.Printf("Error %v", err)
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	utils.SendJSONResponse(
+		w,
+		utils.JSONResponse{Status: 200, Message: "Successfully deleted event"},
+	)
 }
 
 /* func middlewareOne(next http.Handler) http.Handler {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type ErrorResponse struct {
+type JSONResponse struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
@@ -13,8 +13,8 @@ type ErrorResponse struct {
 // Encodes the error response in json and writes it to w
 //
 // The status code sent in the header is the same as status in the error parameter
-func SendErrorResponse(w http.ResponseWriter, error ErrorResponse) {
+func SendJSONResponse(w http.ResponseWriter, resp JSONResponse) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(error.Status)
-	json.NewEncoder(w).Encode(error)
+	w.WriteHeader(resp.Status)
+	json.NewEncoder(w).Encode(resp)
 }

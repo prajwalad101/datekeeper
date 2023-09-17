@@ -33,6 +33,8 @@ func main() {
 	mux.HandleFunc("/events/list", handler.ListEvents)
 	mux.HandleFunc("/events/show", handler.GetEvent)
 	mux.HandleFunc("/events/create", handler.CreateEvent)
+	mux.HandleFunc("/events/update", handler.UpdateEvent)
+	mux.HandleFunc("/events/delete", handler.DeleteEvent)
 
 	service.Schedule()
 
