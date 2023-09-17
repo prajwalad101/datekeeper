@@ -216,28 +216,3 @@ func DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		utils.JSONResponse{Status: 200, Message: "Successfully deleted event"},
 	)
 }
-
-/* func middlewareOne(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Print("Executing middlewareOne")
-		next.ServeHTTP(w, r)
-		log.Print("Executing middlewareOne again")
-	})
-}
-
-func middlewareTwo(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Print("Executing middlewareTwo")
-		if r.URL.Path == "/foo" {
-			return
-		}
-
-		next.ServeHTTP(w, r)
-		log.Print("Executing middlewareTwo again")
-	})
-}
-
-func final(w http.ResponseWriter, _ *http.Request) {
-	log.Print("Executing finalHandler")
-	w.Write([]byte("OK"))
-} */
