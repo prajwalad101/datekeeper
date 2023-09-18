@@ -40,5 +40,6 @@ func main() {
 
 	env := utils.GetEnv()
 	log.Print("Listening on ", env.Port)
-	http.ListenAndServe(env.Port, mux)
+	err := http.ListenAndServe(env.Port, mux)
+	log.Fatal(err)
 }

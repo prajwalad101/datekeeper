@@ -21,9 +21,11 @@ func Schedule() {
 	c := cron.New()
 
 	// at 7 am every day
-	err := c.AddFunc("0 45 18 * * *", func() {
+	err := c.AddFunc("0 0 7 * * *", func() {
 		log.Println("----------Running daily event schedule----------")
 		err := EventNotify(week)
+		err = EventNotify(day)
+
 		if err != nil {
 			log.Println(err.Error())
 		}
@@ -41,7 +43,7 @@ func Schedule() {
 // The interval should be a valid postgres interval
 func EventNotify(interval string) error {
 	rows, err := datastore.DBConnection.Query(
-		"Select * FROM EVENTS WHERE date BETWEEN CURRENT_DATE and (CURRENT_DATE + $1::INTERVAL)",
+		"Select * FROM EVENTS WHERE EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM NOW() + $1::INTERVAL) AND EXTRACT(DAY FROM date) = EXTRACT(DAY FROM NOW() + $1::INTERVAL)",
 		interval,
 	)
 	if err != nil {
@@ -72,18 +74,25 @@ func EventNotify(interval string) error {
 		}
 		fmt.Println(parsedTime)
 		date := parsedTime.Format("January 02")
-		fmt.Println(date)
 
-		subject := fmt.Sprintf("Notification for %v", date)
-		content := fmt.Sprintf("You have an event for %v. Note: %s", date, event.Note)
+		subject := fmt.Sprintf("Notification for '%s'", event.Name)
+
+		templateVariables := map[string]string{
+			"title":        event.Name,
+			"receiverName": "Prajwal",
+			"note":         event.Note,
+			"interval":     interval,
+			"date":         date,
+		}
 
 		payload := EmailPayload{
 			Sender:    utils.GetEnv().MailSender,
 			Subject:   subject,
-			Body:      content,
+			Body:      "",
 			Recipient: "prajwalad101@gmail.com",
 		}
-		SendMail(payload)
+
+		SendMail(payload, "event notification (datekeeper)", templateVariables)
 	}
 
 	return nil
