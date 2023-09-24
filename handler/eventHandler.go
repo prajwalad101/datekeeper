@@ -2,9 +2,7 @@ package handler
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -47,7 +45,7 @@ func HandleGetEvent(w http.ResponseWriter, r *http.Request) error {
 func HandleCreateEvent(w http.ResponseWriter, r *http.Request) error {
 	e := new(model.Event)
 
-	err := json.NewDecoder(r.Body).Decode(e)
+	err := utils.DecodeJSONBody(w, r, e)
 	if err != nil {
 		return err
 	}
@@ -69,13 +67,9 @@ func HandleUpdateEvent(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
 	e := new(model.Event)
-	err := json.NewDecoder(r.Body).Decode(e)
-
-	switch {
-	case err == io.EOF:
-		return fmt.Errorf("Please provide a body")
-	case err != nil:
-		return fmt.Errorf("Cannot decode json body")
+	err := utils.DecodeJSONBody(w, r, e)
+	if err != nil {
+		return err
 	}
 
 	err = model.UpdateEvent(id, e)

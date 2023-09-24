@@ -3,6 +3,7 @@ package datastore
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/lib/pq"
 	"github.com/prajwalad101/datekeeper/utils"
@@ -19,7 +20,7 @@ func InitDB() error {
 		return err
 	}
 	DB = db
-	fmt.Println("Connection Successful...")
+	log.Println("Connection Successful...")
 	err = createEventTable()
 	if err != nil {
 		return err

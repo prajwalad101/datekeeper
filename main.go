@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/prajwalad101/datekeeper/datastore"
 	"github.com/prajwalad101/datekeeper/routes"
+	"github.com/prajwalad101/datekeeper/service"
 	"github.com/prajwalad101/datekeeper/utils"
 )
 
@@ -26,6 +27,8 @@ func main() {
 	routes.EventRouter(apiRouter)
 
 	r.Mount("/api/v1", apiRouter)
+
+	service.RunSchedule()
 
 	log.Print("Listening on ", utils.Env.Port)
 	err := http.ListenAndServe(utils.Env.Port, r)
