@@ -6,5 +6,8 @@ services:
     container_name: datekeeper-db
     restart: always
     environment:
-      POSTGRES_PASSWORD: datekeeper
-      POSTGRES_DB: datekeeper-db
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+    ports:
+      - "${DB_PORT}:5432"

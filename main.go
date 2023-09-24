@@ -1,0 +1,36 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/prajwalad101/datekeeper/datastore"
+	"github.com/prajwalad101/datekeeper/routes"
+	"github.com/prajwalad101/datekeeper/utils"
+)
+
+func init() {
+	utils.InitEnv()
+	err := datastore.InitDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
+	r := chi.NewRouter()
+
+	apiRouter := chi.NewRouter()
+	routes.EventRouter(apiRouter)
+
+	r.Mount("/api/v1", apiRouter)
+
+	log.Print("Listening on ", utils.Env.Port)
+	err := http.ListenAndServe(utils.Env.Port, r)
+	fmt.Println(err)
+	if err != nil {
+		log.Fatal(err)
+	}
+}

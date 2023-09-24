@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/prajwalad101/datekeeper/pkg/datastore"
-	"github.com/prajwalad101/datekeeper/pkg/handler"
+	"github.com/prajwalad101/datekeeper/datastore"
+	"github.com/prajwalad101/datekeeper/model"
 	"github.com/prajwalad101/datekeeper/pkg/utils"
 	"github.com/robfig/cron"
 )
@@ -42,7 +42,7 @@ func Schedule() {
 //
 // The interval should be a valid postgres interval
 func EventNotify(interval string) error {
-	rows, err := datastore.DBConnection.Query(
+	rows, err := datastore.DB.Query(
 		"Select * FROM EVENTS WHERE EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM NOW() + $1::INTERVAL) AND EXTRACT(DAY FROM date) = EXTRACT(DAY FROM NOW() + $1::INTERVAL)",
 		interval,
 	)
@@ -51,10 +51,10 @@ func EventNotify(interval string) error {
 	}
 	defer rows.Close()
 
-	events := make([]*handler.Event, 0)
+	events := make([]*model.Event, 0)
 
 	for rows.Next() {
-		event := new(handler.Event)
+		event := new(model.Event)
 		err := rows.Scan(&event.Id, &event.Name, &event.Note, &event.Date)
 		if err != nil {
 			return err
@@ -85,8 +85,10 @@ func EventNotify(interval string) error {
 			"date":         date,
 		}
 
+		env := utils.Env
+
 		payload := EmailPayload{
-			Sender:    utils.GetEnv().MailSender,
+			Sender:    env.MailSender,
 			Subject:   subject,
 			Body:      "",
 			Recipient: "prajwalad101@gmail.com",

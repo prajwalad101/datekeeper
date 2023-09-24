@@ -18,7 +18,7 @@ type EmailPayload struct {
 }
 
 func SendMail(payload EmailPayload, templateName string, templateVariables map[string]string) {
-	env := utils.GetEnv()
+	env := utils.Env
 
 	mg := mailgun.NewMailgun(env.MailgunDomain, env.MailgunKey)
 

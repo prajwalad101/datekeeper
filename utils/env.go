@@ -1,8 +1,13 @@
 package utils
 
-import "os"
+import (
+	"log"
+	"os"
 
-type Env struct {
+	"github.com/joho/godotenv"
+)
+
+type EnvVars struct {
 	Port          string
 	DBHost        string
 	DBUser        string
@@ -14,8 +19,14 @@ type Env struct {
 	MailSender    string
 }
 
-func GetEnv() Env {
-	env := Env{
+var Env *EnvVars
+
+func InitEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	Env = &EnvVars{
 		Port:          os.Getenv("PORT"),
 		DBHost:        os.Getenv("DB_HOST"),
 		DBUser:        os.Getenv("DB_USER"),
@@ -26,5 +37,4 @@ func GetEnv() Env {
 		MailgunKey:    os.Getenv("MAILGUN_KEY"),
 		MailSender:    os.Getenv("MAIL_SENDER"),
 	}
-	return env
 }
