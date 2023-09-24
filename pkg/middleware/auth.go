@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func AuthMidddleware(next http.Handler) http.Handler {
+func Auth(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 
