@@ -4,14 +4,20 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/prajwalad101/datekeeper/model"
 	"github.com/prajwalad101/datekeeper/utils"
 )
 
-func HandleListEvents(w http.ResponseWriter, _ *http.Request) error {
-	events, err := model.GetEvents()
+func HandleListEvents(w http.ResponseWriter, r *http.Request) error {
+	ctx := r.Context()
+	userID := ctx.Value("userID").(int)
+
+	id := strconv.Itoa(userID)
+
+	events, err := model.GetEvents(id)
 	if err != nil {
 		return err
 	}
@@ -45,6 +51,9 @@ func HandleGetEvent(w http.ResponseWriter, r *http.Request) error {
 func HandleCreateEvent(w http.ResponseWriter, r *http.Request) error {
 	e := new(model.Event)
 
+	ctx := r.Context()
+	userID := ctx.Value("userID").(int)
+
 	err := utils.DecodeJSONBody(w, r, e)
 	if err != nil {
 		return err
@@ -54,7 +63,7 @@ func HandleCreateEvent(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("Please provide required fields (name,  date)")
 	}
 
-	err = model.CreateEvent(e)
+	err = model.CreateEvent(e, userID)
 	if err != nil {
 		return err
 	}

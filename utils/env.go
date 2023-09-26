@@ -9,6 +9,7 @@ import (
 
 type EnvVars struct {
 	Port          string
+	JWTSecret     string
 	DBHost        string
 	DBUser        string
 	DBPassword    string
@@ -28,6 +29,7 @@ func InitEnv() {
 	}
 	Env = &EnvVars{
 		Port:          os.Getenv("PORT"),
+		JWTSecret:     os.Getenv("JWT_SECRET"),
 		DBHost:        os.Getenv("DB_HOST"),
 		DBUser:        os.Getenv("DB_USER"),
 		DBPassword:    os.Getenv("DB_PASSWORD"),

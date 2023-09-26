@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/prajwalad101/datekeeper/handler"
+	"github.com/prajwalad101/datekeeper/middleware"
 	"github.com/prajwalad101/datekeeper/utils"
 )
 
@@ -10,6 +11,9 @@ func EventRouter(router *chi.Mux) {
 	r := chi.NewRouter()
 
 	makeHandlerFunc := utils.MakeHandlerFunc
+
+	// Private routes
+	r.Use(middleware.VerifyJWT)
 
 	r.Get("/", makeHandlerFunc(handler.HandleListEvents))
 	r.Get("/{id}", makeHandlerFunc(handler.HandleGetEvent))
