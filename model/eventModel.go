@@ -15,11 +15,11 @@ type Event struct {
 	Date   string `json:"date,omitempty"`
 }
 
-func GetEventByID(id string) (*Event, error) {
-	if id == "" {
-		return nil, fmt.Errorf("Id is required")
+func GetEventByID(id string, userID int) (*Event, error) {
+	if id == "" || userID == 0 {
+		return nil, fmt.Errorf("User id and event id is required")
 	}
-	row := datastore.DB.QueryRow("SELECT * FROM events WHERE id = $1", id)
+	row := datastore.DB.QueryRow("SELECT * FROM events WHERE id = $1 AND user_id = $2", id, userID)
 
 	event := new(Event)
 	err := row.Scan(&event.Id, &event.UserID, &event.Name, &event.Note, &event.Date)
@@ -71,29 +71,31 @@ func CreateEvent(e *Event, userID int) error {
 	return err
 }
 
-func UpdateEvent(id string, e *Event) error {
+func UpdateEvent(id string, userID int, e *Event) error {
 	if id == "" {
 		return fmt.Errorf("Id is required")
 	}
 
 	_, err := datastore.DB.Exec(
-		"UPDATE events SET name=$2, note=$3, date=$4 WHERE id=$1",
+		"UPDATE events SET name=$2, note=$3, date=$4 WHERE id=$1 AND user_id=$5",
 		id,
 		e.Name,
 		e.Note,
 		e.Date,
+		userID,
 	)
 	return err
 }
 
-func DeleteEvent(id string) error {
+func DeleteEvent(id string, userID int) error {
 	if id == "" {
 		return fmt.Errorf("Id is required")
 	}
 
 	_, err := datastore.DB.Exec(
-		"DELETE from events WHERE id=$1",
+		"DELETE from events WHERE id=$1 AND user_id=$2",
 		id,
+		userID,
 	)
 	return err
 }

@@ -33,7 +33,10 @@ func HandleListEvents(w http.ResponseWriter, r *http.Request) error {
 func HandleGetEvent(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	event, err := model.GetEventByID(id)
+	ctx := r.Context()
+	userID := ctx.Value("userID").(int)
+
+	event, err := model.GetEventByID(id, userID)
 
 	if err == sql.ErrNoRows {
 		return utils.WriteJSON(
@@ -75,13 +78,16 @@ func HandleCreateEvent(w http.ResponseWriter, r *http.Request) error {
 func HandleUpdateEvent(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
+	ctx := r.Context()
+	userID := ctx.Value("userID").(int)
+
 	e := new(model.Event)
 	err := utils.DecodeJSONBody(w, r, e)
 	if err != nil {
 		return err
 	}
 
-	err = model.UpdateEvent(id, e)
+	err = model.UpdateEvent(id, userID, e)
 	if err != nil {
 		return err
 	}
@@ -97,7 +103,10 @@ func HandleUpdateEvent(w http.ResponseWriter, r *http.Request) error {
 func HandleDeleteEvent(w http.ResponseWriter, r *http.Request) error {
 	id := chi.URLParam(r, "id")
 
-	err := model.DeleteEvent(id)
+	ctx := r.Context()
+	userID := ctx.Value("userID").(int)
+
+	err := model.DeleteEvent(id, userID)
 	if err != nil {
 		return err
 	}

@@ -44,7 +44,7 @@ func generatePgConnectionString() string {
 func createEventTable() error {
 	query := `CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    user_id integer REFERENCES users,
+    user_id integer REFERENCES users NOT NULL,
     name VARCHAR(30) NOT NULL,
     note text,
     date DATE NOT NULL
