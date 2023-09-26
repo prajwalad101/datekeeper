@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/prajwalad101/datekeeper/datastore"
+	"github.com/prajwalad101/datekeeper/middleware"
 	"github.com/prajwalad101/datekeeper/routes"
 	"github.com/prajwalad101/datekeeper/service"
 	"github.com/prajwalad101/datekeeper/utils"
@@ -23,8 +24,11 @@ func init() {
 func main() {
 	r := chi.NewRouter()
 
+	r.Use(middleware.EnforceJSON)
+
 	apiRouter := chi.NewRouter()
 	routes.EventRouter(apiRouter)
+	routes.UserRouter(apiRouter)
 
 	r.Mount("/api/v1", apiRouter)
 

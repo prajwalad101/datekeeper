@@ -22,6 +22,7 @@ func InitDB() error {
 	DB = db
 	log.Println("Connection Successful...")
 	err = createEventTable()
+	err = createUserTable()
 	if err != nil {
 		return err
 	}
@@ -43,9 +44,23 @@ func generatePgConnectionString() string {
 func createEventTable() error {
 	query := `CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(30),
+    user_id integer REFERENCES users,
+    name VARCHAR(30) NOT NULL,
     note text,
-    date DATE
+    date DATE NOT NULL
+  )`
+
+	_, err := DB.Exec(query)
+	return err
+}
+
+func createUserTable() error {
+	query := `CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(30) NOT NULL,
+    last_name VARCHAR(30) NOT NULL,
+    email VARCHAR(30) NOT NULL UNIQUE,
+    password VARCHAR(200) NOT NULL
   )`
 
 	_, err := DB.Exec(query)
