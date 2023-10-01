@@ -18,10 +18,10 @@ const (
 
 // Runs a list of all defined schedules
 func RunSchedule() {
-	c := cron.New()
+	c := cron.NewWithLocation(time.UTC)
 
-	// at 7 am every day
-	err := c.AddFunc("0 0 7 * * *", func() {
+	// at 7 am every day (kathmandu)
+	err := c.AddFunc("0 15 1 * * *", func() {
 		log.Println("----------Running daily event schedule----------")
 		err := EventNotify(week)
 		err = EventNotify(day)
@@ -43,7 +43,7 @@ func RunSchedule() {
 // The interval should be a valid postgres interval
 func EventNotify(interval string) error {
 	rows, err := datastore.DB.Query(
-		`Select * FROM EVENTS WHERE EXTRACT(MONTH FROM date) = 
+		`Select id, name, note, date FROM EVENTS WHERE EXTRACT(MONTH FROM date) = 
     EXTRACT(MONTH FROM NOW() + $1::INTERVAL) AND EXTRACT(DAY FROM date) = 
     EXTRACT(DAY FROM NOW() + $1::INTERVAL)`,
 		interval,
@@ -74,7 +74,6 @@ func EventNotify(interval string) error {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(parsedTime)
 		date := parsedTime.Format("January 02")
 
 		subject := fmt.Sprintf("Notification for '%s'", event.Name)
