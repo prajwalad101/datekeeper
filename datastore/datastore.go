@@ -21,8 +21,8 @@ func InitDB() error {
 	}
 	DB = db
 	log.Println("Connection Successful...")
-	err = createEventTable()
 	err = createUserTable()
+	err = createEventTable()
 	if err != nil {
 		return err
 	}
