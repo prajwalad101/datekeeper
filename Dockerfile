@@ -12,6 +12,6 @@ COPY . ./
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o /datekeeper
 
-EXPOSE 8080
+EXPOSE 7000
 
 CMD ["/datekeeper"]

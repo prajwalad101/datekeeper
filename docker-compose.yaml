@@ -1,13 +1,30 @@
 version: "3"
 
 services:
-  db:
+  postgresdb:
     image: postgres
-    container_name: datekeeper-db
     restart: always
+    ports:
+      - "${DB_PORT}:5432"
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
+    volumes:
+      - data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgresdb:
+        condition: service_healthy
     ports:
-      - "${DB_PORT}:5432"
+      - "7000:7000"
+volumes:
+  data:
